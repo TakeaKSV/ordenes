@@ -72,6 +72,9 @@ export const crearOrden = async (req, res) => {
 
 // Obtener todas las órdenes del usuario actual
 export const obtenerOrdenesUsuario = async (req, res) => {
+  if (req.user.role !== "admin") {
+    return res.status(403).json({ error: "Solo los administradores pueden realizar esta operación" });
+  }
   try {
     // Obtener el usuarioId del token, con una validación adicional
     const usuarioId = req.user?.usuarioId;
@@ -99,8 +102,11 @@ export const obtenerOrdenesUsuario = async (req, res) => {
 export const obtenerOrdenPorId = async (req, res) => {
   const { usuarioId } = req.user;
   const { id } = req.params;
-
   try {
+    if (req.user.role !== "admin") {
+      return res.status(403).json({ error: "Solo los administradores pueden realizar esta operación" });
+    }
+
     const orden = await Orden.findOne({
       where: { id, usuarioId },
       include: [{ model: DetalleOrden, as: 'detalles' }]
